@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkcodecapsule=self.webpackChunkcodecapsule||[]).push([[535],{7448:function(s){s.exports=JSON.parse('{"allTagsPath":"/codecapsule/blog/tags","name":"docusaurus","count":4,"permalink":"/codecapsule/blog/tags/docusaurus"}')}}]);

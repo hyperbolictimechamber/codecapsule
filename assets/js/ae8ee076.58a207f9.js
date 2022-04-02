@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkcodecapsule=self.webpackChunkcodecapsule||[]).push([[388],{6851:function(e){e.exports=JSON.parse('{"allTagsPath":"/codecapsule/blog/tags","name":"hola","count":1,"permalink":"/codecapsule/blog/tags/hola"}')}}]);

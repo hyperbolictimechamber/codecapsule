@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkcodecapsule=self.webpackChunkcodecapsule||[]).push([[172],{9017:function(e){e.exports=JSON.parse('{"permalink":"/codecapsule/blog/tags/hello","page":1,"postsPerPage":10,"totalPages":1,"totalCount":2,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
