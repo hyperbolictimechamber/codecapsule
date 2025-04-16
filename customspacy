@@ -1,0 +1,78 @@
+import spacy
+import random
+from spacy.training.example import Example
+from spacy.util import minibatch, compounding
+
+# Define our training sentence and the annotations.
+TRAIN_DATA = [
+    (
+        "buy 100m of hsbc for barclays", 
+        {"entities": [(0, 3, "DIRECTION"), 
+                      (4, 8, "SIZE"), 
+                      (12, 16, "BOND"), 
+                      (21, 29, "CLIENT")]}
+    )
+]
+
+# You can use a blank English model or load the base model.
+# Here, we create a blank English model.
+nlp = spacy.blank("en")
+
+# Create the 'ner' pipeline component and add it to the pipeline.
+if "ner" not in nlp.pipe_names:
+    ner = nlp.add_pipe("ner")
+else:
+    ner = nlp.get_pipe("ner")
+
+# Add new custom labels to the NER.
+labels = ["DIRECTION", "SIZE", "BOND", "CLIENT"]
+for label in labels:
+    ner.add_label(label)
+
+# Begin training. Note: We use a simple training loop.
+# Since we have only one training example, this is for demonstration.
+optimizer = nlp.begin_training()
+n_iter = 30  # number of training iterations
+
+# Disable other pipeline components (if any) during training.
+other_pipes = [pipe for pipe in nlp.pipe_names if pipe != "ner"]
+with nlp.disable_pipes(*other_pipes):
+    for itn in range(n_iter):
+        random.shuffle(TRAIN_DATA)
+        # Batch up the examples using spaCy's minibatch.
+        batches = minibatch(TRAIN_DATA, size=compounding(1.0, 4.0, 1.5))
+        losses = {}
+        for batch in batches:
+            texts, annotations = zip(*batch)
+            examples = []
+            for i in range(len(texts)):
+                doc = nlp.make_doc(texts[i])
+                examples.append(Example.from_dict(doc, annotations[i]))
+            nlp.update(examples, sgd=optimizer, losses=losses)
+        print(f"Iteration {itn + 1}/{n_iter}, Losses: {losses}")
+
+# Test the trained model on the same sentence.
+test_text = "buy 100m of hsbc for barclays"
+doc = nlp(test_text)
+print("\nEntities in '%s'" % test_text)
+for ent in doc.ents:
+    # We can apply simple post‑processing if needed.
+    if ent.label_ == "DIRECTION":
+        out = ent.text.capitalize()
+    elif ent.label_ in {"BOND", "CLIENT"}:
+        # For these labels, we want uppercase or capitalized names.
+        out = ent.text.upper() if ent.label_ == "BOND" else ent.text.capitalize()
+    else:
+        out = ent.text
+    print(f"{ent.label_:<10} {out}")
+
+# Expected output:
+# Direction  Buy
+# Size       100m
+# Bond       HSBC
+# Client     Barclays
+
+# Optionally, save the model to disk:
+output_dir = "./custom_ner_model"
+nlp.to_disk(output_dir)
+print("\nCustom NER model saved to", output_dir)
